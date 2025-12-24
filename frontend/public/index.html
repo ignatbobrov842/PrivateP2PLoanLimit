@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>ZAMA • Private P2P Loan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0b0e14;
+            --panel: #121826;
+            --accent: #5eead4;
+            --accent-2: #818cf8;
+            --danger: #fb7185;
+            --text: #e5e7eb;
+            --muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Space Grotesk", system-ui, sans-serif;
+            background:
+                radial-gradient(800px 400px at 80% -20%, #1b2a4a 0%, transparent 60%),
+                radial-gradient(600px 300px at -10% 10%, #0f766e 0%, transparent 55%),
+                var(--bg);
+            color: var(--text);
+        }
+
+        .wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 20px 80px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 22px;
+            letter-spacing: 0.5px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: #020617;
+            border: none;
+            border-radius: 14px;
+            padding: 12px 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .btn.secondary {
+            background: #1f2937;
+            color: var(--text);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 28px;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 22px;
+            padding: 28px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .card h2 {
+            margin: 0 0 18px;
+            font-size: 20px;
+        }
+
+        label {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            width: 100%;
+            margin-top: 6px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-size: 15px;
+        }
+
+        input[readonly] {
+            opacity: 0.7;
+        }
+
+        .row {
+            margin-bottom: 18px;
+        }
+
+        .row.switch {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .switch-label {
+            position: relative;
+            width: 52px;
+            height: 28px;
+        }
+
+        .switch-label input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 34px;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .3s;
+        }
+
+        .switch input:checked+.slider {
+            background-color: #6c47ff;
+        }
+
+        .switch input:checked+.slider:before {
+            transform: translateX(24px);
+        }
+
+        .status {
+            padding: 16px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 15px;
+        }
+
+        .status.ok {
+            color: var(--accent);
+        }
+
+        .status.no {
+            color: var(--danger);
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+
+        <header>
+            <div class="logo">ZAMA <span>Private P2P</span></div>
+            <button id="btnConnect" class="btn">Connect Wallet</button>
+        </header>
+
+        <div class="grid">
+
+            <!-- USER PANEL -->
+            <div class="card">
+                <h2>Loan Application</h2>
+
+                <div class="row">
+                    <label>Declared Income (uint64)</label>
+                    <input id="income" type="number" min="0" value="50000" />
+                </div>
+
+                <div class="row switch">
+                    <label>Use user encryption</label>
+                    <label class="switch-label">
+
+                        <input id="useUserEnc" type="checkbox" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <button id="btnSubmit" class="btn">Encrypt & Submit</button>
+
+                <div class="row" style="margin-top:24px;">
+                    <label>Decision handle</label>
+                    <input id="decisionHandle" class="mono" readonly placeholder="—" />
+                </div>
+
+                <div class="row" style="display:flex; gap:12px;">
+                    <button id="btnPublic" class="btn secondary" style="flex:1">Public decrypt</button>
+                </div>
+
+                <div id="decisionBox" class="status" style="margin-top:16px;">
+                    Decision: —
+                </div>
+            </div>
+
+            <!-- INFO PANEL -->
+            <div class="card">
+                <h2>Session</h2>
+
+                <div class="row">
+                    <label>Account</label>
+                    <div id="account" class="mono">—</div>
+                </div>
+
+                <div class="row">
+                    <label>Network</label>
+                    <div id="network">—</div>
+                </div>
+
+                <div class="row">
+                    <label>Contract</label>
+                    <div class="mono">0xe0722Bf04af9e0713BC2eb824F9e470C3C76089E</div>
+                </div>
+
+                <div class="row">
+                    <label>My encrypted income handle</label>
+                    <input id="incomeHandle" class="mono" readonly placeholder="—" />
+                </div>
+                <div class="row" style="display:flex; gap:12px;">
+                    <button id="btnUser" class="btn secondary" style="flex:1">User decrypt</button>
+                </div>
+                <div class="row">
+                    <div id="incomeBox" class="status" style="margin-top:16px;">
+                        Decrypted income: —
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ADMIN PANEL -->
+        <div class="card" style="margin-top:32px;">
+            <h2>Admin · Encrypted Policy</h2>
+
+            <div class="row">
+                <label>Minimum Income (uint64)</label>
+                <input id="minIncome" type="number" min="0" value="50000" />
+            </div>
+
+            <button id="btnSetMinIncome" class="btn">Encrypt & Set Min Income</button>
+
+            <div class="row">
+                <div id="adminStatus" class="status" style="margin-top:16px;">
+                    Status: —
+                </div>
+            </div>
+        </div>
+
+
+        <footer>
+            Fully Homomorphic Encryption powered by ZAMA FHEVM
+        </footer>
+
+    </div>
+
+    <script type="module">
+
+        /* ========================================================
+           ZAMA • Branded Logger
+           ======================================================== */
+        const Z = {
+            log(...args) {
+                console.log(
+                    "%c[ZAMA]%c " + args.join(" "),
+                    "background:#6c47ff;color:#fff;padding:3px 6px;border-radius:4px;font-weight:bold;",
+                    "color:#e8e0ff;font-weight:500;"
+                );
+            },
+            event(...args) {
+                console.log(
+                    "%c⚡ EVENT%c " + args.join(" "),
+                    "background:#b598ff;color:#000;padding:3px 6px;border-radius:4px;font-weight:bold;",
+                    "color:#dcd2ff;font-weight:500;"
+                );
+            },
+            step(...args) {
+                console.log(
+                    "%c🔧 STEP%c " + args.join(" "),
+                    "background:#8a6eff;color:#fff;padding:3px 6px;border-radius:4px;font-weight:bold;",
+                    "color:#f2eaff;font-weight:500;"
+                );
+            },
+            tx(...args) {
+                console.log(
+                    "%c📡 TX%c " + args.join(" "),
+                    "background:#3d2c78;color:#fff;padding:3px 6px;border-radius:4px;font-weight:bold;",
+                    "color:#d8ccff;font-weight:500;"
+                );
+            },
+            ok(...args) {
+                console.log(
+                    "%c✔ SUCCESS%c " + args.join(" "),
+                    "background:#32d18a;color:#000;padding:3px 6px;border-radius:4px;font-weight:bold;",
+                    "color:#caffea;font-weight:500;"
+                );
+            },
+            warn(...args) {
+                console.log(
+                    "%c⚠ WARNING%c " + args.join(" "),
+                    "background:#ffcf5f;color:#000;padding:3px 6px;border-radius:4px;font-weight:bold;",
+                    "color:#fff5d6;font-weight:500;"
+                );
+            },
+            error(...args) {
+                console.log(
+                    "%c✖ ERROR%c " + args.join(" "),
+                    "background:#ff6b6b;color:#000;padding:3px 6px;border-radius:4px;font-weight:bold;",
+                    "color:#ffeaea;font-weight:500;"
+                );
+            },
+            block(title, obj) {
+                console.log(
+                    "%c" + title,
+                    "background:#6c47ff;color:#fff;font-weight:bold;padding:5px 10px;border-radius:6px;margin-top:6px;"
+                );
+                console.log(obj);
+            }
+        };
+
+        Z.log("ZAMA Logger initialized");
+
+        /* ============================================================================================
+           ORIGINAL SCRIPT, WITH ADDED ZAMA LOGGING ONLY
+           ============================================================================================ */
+
+        import { BrowserProvider, Contract } from "https://cdn.jsdelivr.net/npm/ethers@6.15.0/+esm";
+        import * as relayerSdk from "https://cdn.zama.org/relayer-sdk-js/0.3.0-5/relayer-sdk-js.js";
+
+        const { createInstance, initSDK, SepoliaConfig, generateKeypair } = relayerSdk;
+
+        Z.step("Initializing Relayer SDK");
+        await initSDK();
+        Z.ok("Relayer SDK initialized");
+
+        const CONTRACT = "0xe0722Bf04af9e0713BC2eb824F9e470C3C76089E";
+        Z.log("Contract:", CONTRACT);
+
+        const ABI = [
+            {
+                name: "submitIncome", type: "function", stateMutability: "nonpayable",
+                inputs: [{ type: "bytes32" }, { type: "bytes" }], outputs: []
+            },
+            {
+                name: "getDecisionHandle", type: "function", stateMutability: "view",
+                inputs: [{ type: "address" }], outputs: [{ type: "bytes32" }]
+            },
+            {
+                name: "getMyIncomeHandle", type: "function", stateMutability: "view",
+                inputs: [], outputs: [{ type: "bytes32" }]
+            },
+            {
+                name: "setMinIncome", type: "function", stateMutability: "nonpayable",
+                inputs: [{ type: "bytes32" }, { type: "bytes" }], outputs: []
+            },
+            {
+                name: "owner", type: "function", stateMutability: "view",
+                inputs: [], outputs: [{ type: "address" }]
+            }
+        ];
+
+        let provider, signer, account, contract, relayer;
+
+        /* ===================== CONNECT ===================== */
+        document.getElementById("btnConnect").onclick = async () => {
+            Z.event("Connect wallet");
+
+            provider = new BrowserProvider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            signer = await provider.getSigner();
+            account = await signer.getAddress();
+            const net = await provider.getNetwork();
+
+            Z.block("🔌 WALLET CONNECTED", { account, chainId: net.chainId });
+
+            document.getElementById("account").textContent = account;
+            document.getElementById("network").textContent = net.chainId.toString();
+
+            contract = new Contract(CONTRACT, ABI, signer);
+            relayer = await createInstance({ ...SepoliaConfig, network: window.ethereum });
+
+            Z.ok("Contract + Relayer ready");
+
+            document.getElementById("btnConnect").textContent = "Connected";
+        };
+
+        /* ===================== SUBMIT ===================== */
+        document.getElementById("btnSubmit").onclick = async () => {
+            Z.event("Submit income");
+
+            const income = Number(document.getElementById("income").value);
+            const useUser = document.getElementById("useUserEnc").checked;
+
+            Z.block("📝 USER INPUT", { income, useUser });
+
+            const enc = relayer.createEncryptedInput(CONTRACT, account);
+            enc.add64(income);
+
+            Z.step("Encrypting income");
+            const { handles, inputProof } = await enc.encrypt({ user: useUser });
+
+            Z.block("🔐 ENCRYPTED HANDLES", handles);
+            Z.block("📄 INPUT PROOF", inputProof);
+
+            Z.tx("Calling submitIncome()");
+            const tx = await contract.submitIncome(handles[0], inputProof);
+            Z.tx("TX HASH:", tx.hash);
+
+            await tx.wait();
+            Z.ok("submitIncome confirmed");
+
+            const decision = await contract.getDecisionHandle(account);
+            const incomeHandle = await contract.getMyIncomeHandle();
+
+            Z.log("Decision handle:", decision);
+            Z.log("Income handle:", incomeHandle);
+
+            document.getElementById("decisionHandle").value = decision;
+            document.getElementById("incomeHandle").value = incomeHandle;
+        };
+
+        /* ===================== PUBLIC DECRYPT ===================== */
+        document.getElementById("btnPublic").onclick = async () => {
+            Z.event("Public decrypt");
+
+            const h = document.getElementById("decisionHandle").value;
+            if (!h) return Z.warn("No decision handle");
+
+            Z.step("Public decrypt handle", h);
+
+            const r = await relayer.publicDecrypt([h]);
+            Z.block("🌐 PUBLIC DECRYPT RESULT", r);
+
+            const v = Object.values(r)[0][h];
+            Z.ok("Decrypted decision:", v);
+
+            const box = document.getElementById("decisionBox");
+            box.className = "status " + (v ? "ok" : "no");
+            box.textContent = v ? "Decision: APPROVED" : "Decision: REJECTED";
+        };
+
+        /* ===================== USER DECRYPT ===================== */
+        document.getElementById("btnUser").onclick = async () => {
+            Z.event("User decrypt income");
+
+            const h = document.getElementById("incomeHandle").value;
+            if (!h) return Z.warn("No income handle");
+
+            Z.step("Generating ephemeral keypair");
+            const kp = await generateKeypair();
+            Z.block("🔑 USER KEYPAIR", kp);
+
+            const start = Math.floor(Date.now() / 1000).toString();
+            const days = "7";
+
+            Z.step("Creating EIP712 payload");
+            const eip = relayer.createEIP712(kp.publicKey, [CONTRACT], start, days);
+            Z.block("EIP712 MESSAGE", eip);
+
+            const sig = await signer.signTypedData(
+                eip.domain,
+                { UserDecryptRequestVerification: eip.types.UserDecryptRequestVerification },
+                eip.message
+            );
+
+            Z.log("Signature:", sig);
+
+            Z.tx("Calling userDecrypt()");
+            const r = await relayer.userDecrypt(
+                [{ handle: h, contractAddress: CONTRACT }],
+                kp.privateKey,
+                kp.publicKey,
+                sig.replace("0x", ""),
+                [CONTRACT],
+                account,
+                start,
+                days
+            );
+
+            Z.block("🔐 USER DECRYPT RESULT", r);
+
+            const val = BigInt(r[h]);
+            Z.ok("Decrypted income:", val.toString());
+
+            document.getElementById("incomeBox").textContent =
+                "Decrypted income: " + val.toString();
+        };
+
+        /* ================= ADMIN: SET MIN INCOME ================= */
+        document.getElementById("btnSetMinIncome").onclick = async () => {
+            Z.event("Set min income");
+
+            if (!contract || !relayer) return Z.warn("Wallet not connected");
+
+            const statusBox = document.getElementById("adminStatus");
+
+            const owner = await contract.owner();
+            if (owner.toLowerCase() !== account.toLowerCase()) {
+                Z.error("NOT OWNER");
+                statusBox.className = "status no";
+                statusBox.textContent = "Status: NOT CONTRACT OWNER";
+                return;
+            }
+
+            const minIncome = Number(document.getElementById("minIncome").value);
+            Z.block("🔧 ADMIN INPUT", { minIncome });
+
+            try {
+                Z.step("Encrypting minIncome");
+
+                const enc = relayer.createEncryptedInput(CONTRACT, account);
+                enc.add64(minIncome);
+
+                const { handles, inputProof } = await enc.encrypt();
+                Z.block("🔐 POLICY HANDLES", handles);
+
+                Z.tx("Calling setMinIncome()");
+                const tx = await contract.setMinIncome(handles[0], inputProof);
+                Z.tx("TX HASH:", tx.hash);
+
+                await tx.wait();
+                Z.ok("Min income updated");
+
+                statusBox.className = "status ok";
+                statusBox.textContent = "Status: Min income updated ✔";
+            } catch (e) {
+                Z.error("setMinIncome failed", e);
+                statusBox.className = "status no";
+                statusBox.textContent = "Status: Transaction failed";
+            }
+        };
+
+    </script>
+
+</body>
+
+</html>
